@@ -46,7 +46,7 @@ const App: React.FC = () => {
         setProcesses(prev => prev.map(p => (p.id === updatedProcess.id ? updatedProcess : p)));
         setEditingProcessId(null);
     };
-
+    
     const handleAnalyze = useCallback(async () => {
         if (!user || processes.length === 0) {
             setError("Please add at least one process to analyze.");
@@ -114,6 +114,7 @@ const App: React.FC = () => {
                             onEditProcess={handleStartEdit}
                         />
                         {processes.length > 0 && (
+                          <div className="pt-4 border-t border-slate-200">
                             <button
                                 onClick={handleAnalyze}
                                 disabled={isLoading || !!editingProcessId}
@@ -134,6 +135,7 @@ const App: React.FC = () => {
                                     </>
                                 )}
                             </button>
+                          </div>
                         )}
                         {error && <div className="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-center">{error}</div>}
                     </div>
@@ -176,9 +178,6 @@ const App: React.FC = () => {
                 <main className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-lg">
                     {renderContent()}
                 </main>
-                <footer className="text-center mt-8 text-sm text-slate-500">
-                    <p>Powered by Gemini AI</p>
-                </footer>
             </div>
         </div>
     );

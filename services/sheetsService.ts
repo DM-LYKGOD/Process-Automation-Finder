@@ -7,6 +7,8 @@ interface SheetData {
     timestamp: string;
 }
 
+const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyx0wz7EMaM5Ae2ZZuQjyh7gA2g3ovtoOcV5TWLDiiFLRUhjZshF1qh7cfCdWEEx9PdGA/exec';
+
 /**
  * Saves analysis data to a Google Sheet via a Google Apps Script Web App.
  * This function is fire-and-forget from the UI perspective.
@@ -20,8 +22,10 @@ export const saveDataToSheet = async (
     processes: Process[], 
     recommendations: OutputData
 ): Promise<void> => {
-    // Hardcoded URL to the user's deployed Google Apps Script web app.
-    const appScriptUrl = 'https://script.google.com/macros/s/AKfycbyLCjO8Kadk_pgmKOHN0yIjkt3Ca3ntk56_R8Z0_X8L_0TwxW8FvFl_4byjvgrZU3P8bg/exec';
+    if (!GOOGLE_APP_SCRIPT_URL) {
+        console.warn("Google Apps Script URL not configured. Skipping data save.");
+        return;
+    }
 
     const data: SheetData = {
         user,
@@ -35,7 +39,7 @@ export const saveDataToSheet = async (
         // This is a common technique to bypass CORS preflight issues when posting data
         // to a Google Apps Script from a browser. We won't be able to read the response,
         // but the data will be sent successfully.
-        await fetch(appScriptUrl, {
+        await fetch(GOOGLE_APP_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
             body: JSON.stringify(data),
