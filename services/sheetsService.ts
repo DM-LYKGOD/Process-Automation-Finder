@@ -7,7 +7,7 @@ interface SheetData {
     timestamp: string;
 }
 
-const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyx0wz7EMaM5Ae2ZZuQjyh7gA2g3ovtoOcV5TWLDiiFLRUhjZshF1qh7cfCdWEEx9PdGA/exec';
+const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXIDjAjoXYLxlP_NPJF1k2-SAsQn1IiEtjKIeFYUTcZzmz1LkhQCaFRHqN5Ssjxe7Gbw/exec';
 
 /**
  * Saves analysis data to a Google Sheet via a Google Apps Script Web App.
