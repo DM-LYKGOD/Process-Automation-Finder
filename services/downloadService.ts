@@ -1,15 +1,7 @@
 import * as XLSX from 'xlsx';
-// FIX: Use a named import for jsPDF to ensure TypeScript can correctly find the module for augmentation.
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { User, Process, OutputData } from '../types';
-
-// Use module augmentation to correctly extend the jsPDF interface for the autoTable plugin.
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
 
 export const exportToExcel = (user: User, processes: Process[], recommendations: OutputData) => {
   // 1. User Info Sheet
@@ -76,7 +68,7 @@ export const exportToPDF = (user: User, processes: Process[], recommendations: O
     // Automation Recommendations
     doc.setFontSize(16);
     doc.text('Automation Recommendations', 14, 50);
-    doc.autoTable({
+    autoTable(doc, {
         startY: 55,
         head: [['Process Name', 'Reason for Automation']],
         body: recommendations.automation_recommendations.map(r => [r.process_name, r.reason]),
@@ -89,7 +81,7 @@ export const exportToPDF = (user: User, processes: Process[], recommendations: O
     if (finalY > pageHeight - 50) { doc.addPage(); finalY = 22; }
     doc.setFontSize(16);
     doc.text('Agentic AI Suitability', 14, finalY);
-    doc.autoTable({
+    autoTable(doc, {
         startY: finalY + 5,
         head: [['Process Name', 'Reason for Suitability', 'Suggested Agent Steps']],
         body: recommendations.agentic_recommendations.map(r => [r.process_name, r.reason, r.suggested_steps.join('\n- ')]),
@@ -103,7 +95,7 @@ export const exportToPDF = (user: User, processes: Process[], recommendations: O
     if (finalY > pageHeight - 50) { doc.addPage(); finalY = 22; }
     doc.setFontSize(16);
     doc.text('Appendix: Submitted Process Details', 14, finalY);
-    doc.autoTable({
+    autoTable(doc, {
         startY: finalY + 5,
         head: [['Process Name', 'Occurrences', 'People', 'Hours']],
         body: processes.map(p => [p.name, p.occurrences, p.people_involved, p.hours_required]),

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { OutputData, User, Process } from '../types';
-import { exportToExcel, exportToPDF } from '../services/downloadService';
 import FileDownloadIcon from './icons/FileDownloadIcon';
 import SparklesIcon from './icons/SparklesIcon';
 
@@ -40,8 +39,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ user, processes, resu
     const handleDownload = async (format: 'excel' | 'pdf') => {
         setIsDownloading(true);
         try {
-            // Give a brief moment for UI to update before blocking the main thread
-            await new Promise(resolve => setTimeout(resolve, 50));
+            // Dynamically import the download service only when needed
+            const { exportToExcel, exportToPDF } = await import('../services/downloadService');
+            
             if (format === 'excel') {
                 exportToExcel(user, processes, results);
             } else {
