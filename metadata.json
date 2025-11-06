@@ -1,0 +1,5 @@
+{
+  "name": "Business Process Automation Analyzer",
+  "description": "An application that enables customers to input structured details about their business processes for AI-powered automation analysis and recommendations.",
+  "requestFramePermissions": []
+}
