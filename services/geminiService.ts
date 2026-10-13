@@ -9,13 +9,11 @@ export const getAutomationRecommendations = async (data: InputData): Promise<Out
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   const prompt = `
-    You are an expert automation consultant. Analyze the following business processes for a company and provide two sets of recommendations.
+    You are an expert automation consultant. Analyze the following business processes for a company and provide recommendations for which processes are suitable for an advanced Agentic AI solution.
 
     The business data is: ${JSON.stringify(data, null, 2)}
 
-    1.  **General Automation Recommendations**: Identify processes that are good candidates for traditional automation. Focus on tasks that are highly repetitive, frequent, rule-based, and prone to human error. For each, provide the process_id, process_name, and a concise reason.
-
-    2.  **Agentic AI Suitability Recommendations**: Identify processes that are suitable for a more advanced Agentic AI solution. Look for processes that require decision-making, handling unstructured data, interacting with multiple systems, or have complex, non-linear steps. For each, provide the process_id, process_name, a reason for its suitability, and a list of suggested high-level steps an AI agent could take to perform the process.
+    **Agentic AI Suitability Recommendations**: Identify processes that are suitable for a more advanced Agentic AI solution. Look for processes that require decision-making, handling unstructured data, interacting with multiple systems, or have complex, non-linear steps. For each, provide the process_id, process_name, a reason for its suitability, and a list of suggested high-level steps an AI agent could take to perform the process.
 
     Return the analysis in JSON format.
   `;
@@ -29,18 +27,6 @@ export const getAutomationRecommendations = async (data: InputData): Promise<Out
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            automation_recommendations: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  process_id: { type: Type.STRING },
-                  process_name: { type: Type.STRING },
-                  reason: { type: Type.STRING },
-                },
-                required: ["process_id", "process_name", "reason"],
-              },
-            },
             agentic_recommendations: {
               type: Type.ARRAY,
               items: {
@@ -59,7 +45,7 @@ export const getAutomationRecommendations = async (data: InputData): Promise<Out
               }
             }
           },
-          required: ["automation_recommendations", "agentic_recommendations"],
+          required: ["agentic_recommendations"],
         },
       },
     });
@@ -68,8 +54,8 @@ export const getAutomationRecommendations = async (data: InputData): Promise<Out
     const parsedJson = JSON.parse(jsonText);
     
     // Basic validation to ensure the response structure matches our expectation
-    if (!parsedJson.automation_recommendations || !Array.isArray(parsedJson.automation_recommendations) || !parsedJson.agentic_recommendations || !Array.isArray(parsedJson.agentic_recommendations)) {
-        throw new Error("Invalid response format from AI. Expected 'automation_recommendations' and 'agentic_recommendations' arrays.");
+    if (!parsedJson.agentic_recommendations || !Array.isArray(parsedJson.agentic_recommendations)) {
+        throw new Error("Invalid response format from AI. Expected 'agentic_recommendations' array.");
     }
 
     return parsedJson as OutputData;

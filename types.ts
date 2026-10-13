@@ -14,12 +14,6 @@ export interface Process {
   steps?: string[];
 }
 
-export interface AutomationRecommendation {
-  process_id: string;
-  process_name: string;
-  reason: string;
-}
-
 export interface AgenticRecommendation {
   process_id: string;
   process_name: string;
@@ -33,6 +27,5 @@ export interface InputData {
 }
 
 export interface OutputData {
-    automation_recommendations: AutomationRecommendation[];
     agentic_recommendations: AgenticRecommendation[];
 }

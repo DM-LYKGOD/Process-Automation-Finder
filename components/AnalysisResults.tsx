@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { OutputData, User, Process } from '../types';
+import { exportToExcel, exportToPDF } from '../services/downloadService';
 import FileDownloadIcon from './icons/FileDownloadIcon';
 import SparklesIcon from './icons/SparklesIcon';
 
@@ -10,14 +11,15 @@ interface AnalysisResultsProps {
     onReset: () => void;
 }
 
-const RecommendationCard = ({ title, reason }: { title: string, reason: string }) => (
-    <div className="bg-white p-4 rounded-lg border border-slate-200 transition-all hover:shadow-md">
-        <h4 className="font-semibold text-slate-800">{title}</h4>
-        <p className="text-sm text-slate-600 mt-1">{reason}</p>
-    </div>
-);
+// Fix: Extracted inline props to a named interface to resolve TypeScript errors with the 'key' prop in lists.
+interface AgenticRecommendationCardProps {
+    title: string;
+    reason: string;
+    steps: string[];
+}
 
-const AgenticRecommendationCard = ({ title, reason, steps }: { title: string, reason: string, steps: string[] }) => (
+// FIX: Explicitly type the component with React.FC to resolve the TypeScript error with the 'key' prop.
+const AgenticRecommendationCard: React.FC<AgenticRecommendationCardProps> = ({ title, reason, steps }) => (
     <div className="bg-white p-4 rounded-lg border border-slate-200 transition-all hover:shadow-md">
         <h4 className="font-semibold text-slate-800">{title}</h4>
         <p className="text-sm text-slate-600 mt-1 italic">"{reason}"</p>
@@ -36,12 +38,9 @@ const AgenticRecommendationCard = ({ title, reason, steps }: { title: string, re
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ user, processes, results, onReset }) => {
     const [isDownloading, setIsDownloading] = useState(false);
 
-    const handleDownload = async (format: 'excel' | 'pdf') => {
+    const handleDownload = (format: 'excel' | 'pdf') => {
         setIsDownloading(true);
         try {
-            // Dynamically import the download service only when needed
-            const { exportToExcel, exportToPDF } = await import('../services/downloadService');
-            
             if (format === 'excel') {
                 exportToExcel(user, processes, results);
             } else {
@@ -83,22 +82,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ user, processes, resu
                         Excel
                     </button>
                 </div>
-            </div>
-
-            {/* General Automation Recommendations */}
-            <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-200 pb-2">
-                    General Automation Recommendations
-                </h3>
-                {results.automation_recommendations.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {results.automation_recommendations.map(rec => (
-                            <RecommendationCard key={rec.process_id} title={rec.process_name} reason={rec.reason} />
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-slate-500 text-center py-4">No specific recommendations for general automation were found.</p>
-                )}
             </div>
 
             {/* Agentic AI Recommendations */}

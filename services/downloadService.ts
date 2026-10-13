@@ -1,7 +1,12 @@
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { User, Process, OutputData } from '../types';
+
+// Declare globals provided by script tags in index.html
+declare global {
+  interface Window {
+    jspdf: any;
+  }
+}
 
 export const exportToExcel = (user: User, processes: Process[], recommendations: OutputData) => {
   // 1. User Info Sheet
@@ -24,15 +29,7 @@ export const exportToExcel = (user: User, processes: Process[], recommendations:
   }));
   const processesWs = XLSX.utils.json_to_sheet(processesData);
 
-  // 3. Automation Recommendations Sheet
-  const automationRecsData = recommendations.automation_recommendations.map(r => ({
-    'Process Name': r.process_name,
-    'Reason for Automation': r.reason,
-    'Process ID': r.process_id,
-  }));
-  const automationRecsWs = XLSX.utils.json_to_sheet(automationRecsData);
-
-  // 4. Agentic AI Recommendations Sheet
+  // 3. Agentic AI Recommendations Sheet
   const agenticRecsData = recommendations.agentic_recommendations.map(r => ({
     'Process Name': r.process_name,
     'Reason for Suitability': r.reason,
@@ -45,7 +42,6 @@ export const exportToExcel = (user: User, processes: Process[], recommendations:
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, userWs, 'User Information');
   XLSX.utils.book_append_sheet(wb, processesWs, 'Submitted Processes');
-  XLSX.utils.book_append_sheet(wb, automationRecsWs, 'Automation Recommendations');
   XLSX.utils.book_append_sheet(wb, agenticRecsWs, 'Agentic AI Recommendations');
 
   // Download the file
@@ -54,6 +50,7 @@ export const exportToExcel = (user: User, processes: Process[], recommendations:
 
 
 export const exportToPDF = (user: User, processes: Process[], recommendations: OutputData) => {
+    const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
     let finalY = 0;
@@ -65,24 +62,11 @@ export const exportToPDF = (user: User, processes: Process[], recommendations: O
     doc.text(`For: ${user.company_name}`, 14, 30);
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 36);
 
-    // Automation Recommendations
-    doc.setFontSize(16);
-    doc.text('Automation Recommendations', 14, 50);
-    autoTable(doc, {
-        startY: 55,
-        head: [['Process Name', 'Reason for Automation']],
-        body: recommendations.automation_recommendations.map(r => [r.process_name, r.reason]),
-        theme: 'striped',
-        headStyles: { fillColor: [76, 51, 152] }, // Indigo color
-    });
-    finalY = (doc as any).lastAutoTable.finalY + 15;
-
     // Agentic AI Recommendations
-    if (finalY > pageHeight - 50) { doc.addPage(); finalY = 22; }
     doc.setFontSize(16);
-    doc.text('Agentic AI Suitability', 14, finalY);
-    autoTable(doc, {
-        startY: finalY + 5,
+    doc.text('Agentic AI Suitability', 14, 50);
+    (doc as any).autoTable({
+        startY: 55,
         head: [['Process Name', 'Reason for Suitability', 'Suggested Agent Steps']],
         body: recommendations.agentic_recommendations.map(r => [r.process_name, r.reason, r.suggested_steps.join('\n- ')]),
         theme: 'striped',
@@ -95,7 +79,7 @@ export const exportToPDF = (user: User, processes: Process[], recommendations: O
     if (finalY > pageHeight - 50) { doc.addPage(); finalY = 22; }
     doc.setFontSize(16);
     doc.text('Appendix: Submitted Process Details', 14, finalY);
-    autoTable(doc, {
+    (doc as any).autoTable({
         startY: finalY + 5,
         head: [['Process Name', 'Occurrences', 'People', 'Hours']],
         body: processes.map(p => [p.name, p.occurrences, p.people_involved, p.hours_required]),
